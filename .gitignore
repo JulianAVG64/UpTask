@@ -1,0 +1,15 @@
+# Node.js dependencies
+node_modules/
+
+# Composer dependencies
+vendor/
+
+# Gulp
+public/build/
+
+# Log files
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
