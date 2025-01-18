@@ -83,19 +83,27 @@ class LoginController {
                 if($usuario && $usuario->confirmado) {
                     // Usuario encontrado
                     // Generar un nuevo token
+                    $usuario->crearToken();
+                    unset($usuario->password2);
 
                     // Actualizar el usuario
+                    $usuario->guardar();
 
                     // Enviar el email
+                    $email = new Email($usuario->email, $usuario->nombre, $usuario->token);
+                    $email->enviarRecuperacion();
 
                     // Imprimir la alerta
+                    Usuario::setAlerta('exito', 'Hemos enviado las instrucciones a tu email');
+
                 } else {
                     // Usuario no existe
                     Usuario::setAlerta('error', 'El usuario no existe o no está confirmado');
-                    $alertas = Usuario::getAlertas();
                 }
             }
         }
+
+        $alertas = Usuario::getAlertas();
 
         // Render a la vista
         $router->render('auth/olvide', [
@@ -106,13 +114,54 @@ class LoginController {
 
     public static function reestablecer(Router $router) {
 
+        $token = s($_GET['token']);
+        $mostrar = true;
+
+        if(!$token) {
+            header('Location: /');
+        }
+
+        // Identificar el usuario con este token
+        $usuario = Usuario::where('token', $token);
+
+        if(empty($usuario)) {
+            Usuario::setAlerta('error', 'Token No Válido');
+            $mostrar = false;
+        }
+
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+            // Añadir el nuevo password
+            $usuario->sincronizar($_POST);
+
+            // Validar el password
+            $alertas = $usuario->validarPassword();
+
+            if(empty($alertas)) {
+                // Hashear el nuevo password
+                $usuario->hashPassword();
+                unset($usuario->password2);
+
+                // Eliminar el Token
+                $usuario->token = null;
+
+                // Guardar el usuario en la BD
+                $resultado = $usuario->guardar();
+
+                // Redireccionar
+                if($resultado) {
+                    header('Location: /');
+                }
+            }
         }
+
+        $alertas = Usuario::getAlertas();
 
         // Render a la vista
         $router->render('auth/reestablecer', [
-            'titulo' => 'Reestablecer Password'
+            'titulo' => 'Reestablecer Password',
+            'alertas' => $alertas,
+            'mostrar' => $mostrar
         ]);
     }
 
