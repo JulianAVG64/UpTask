@@ -12,4 +12,13 @@
     .principal {
         flex: 1; // Para que tome todo el resto del contenido en flexbox
     }
+
+    .contenido {
+        padding: 2rem;
+
+        .nombre-pagina {
+            font-size: 2.8rem;
+            text-align: center;
+        }
+    }
 }
