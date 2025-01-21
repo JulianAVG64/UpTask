@@ -44,10 +44,51 @@
                 }, 500);
             }
 
-            console.log(e.target);
+            if(e.target.classList.contains('submit-nueva-tarea')) {
+                submitFormularioNuevaTarea();
+            }
         });
 
-        document.querySelector('body').appendChild(modal);
+        document.querySelector('.dashboard').appendChild(modal);
+    }
+
+    function submitFormularioNuevaTarea() {
+        const tarea = document.querySelector('#tarea').value.trim();
+
+        if(tarea === '') {
+            // Mostrar una alerta de error
+            mostrarAlerta('El nombre de la tarea es Obligatorio', 'error', document.querySelector('.formulario legend'));
+            return;
+        }
+
+        agregarTarea(tarea);
+    }
+
+    // Muestra un mensaje en la interfaz
+    function mostrarAlerta(mensaje, tipo, referencia) {
+        // Previene la creación de múltiples alertas
+        const alertaPrevia = document.querySelector('.alerta');
+        if(alertaPrevia) {
+            alertaPrevia.remove();
+        }
+
+
+        const alerta = document.createElement('DIV');
+        alerta.classList.add('alerta', tipo);
+        alerta.textContent = mensaje;
+
+        // Inserta alerta después del legend. Sibling es como decir hermanos
+        referencia.parentElement.insertBefore(alerta, referencia.nextElementSibling);
+
+        // Eliminar alrta después de 5 segundos
+        setTimeout(() => {
+            alerta.remove();
+        }, 5000);
+    }
+
+    // Consultar el servidor para añadir una nueva tarea al proyecto actual
+    function agregarTarea(tarea) {
+
     }
 
 })(); //IIEF, Función que se manda llamar inmediatamente. Proteger las variables para que no se mezclen con los otros archivos
