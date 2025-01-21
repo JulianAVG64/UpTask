@@ -26,6 +26,27 @@
             </form>
         `;
 
+        setTimeout(() => {
+            const formulario = document.querySelector('.formulario');
+            formulario.classList.add('animar');
+        }, 0);
+
+        // DELEGATION, identificar el elemento al que se la da click para poder realizar ciertas acciones. Viene de la mano cuando se usa innerHTML, no tanto al usar scripting
+        modal.addEventListener('click', function(e) {
+            e.preventDefault(); // Previene que envíe el formulario con el botón Añadir Tarea
+
+            if(e.target.classList.contains('cerrar-modal')) {
+                const formulario = document.querySelector('.formulario');
+                formulario.classList.add('cerrar');
+
+                setTimeout(() => {
+                    modal.remove();
+                }, 500);
+            }
+
+            console.log(e.target);
+        });
+
         document.querySelector('body').appendChild(modal);
     }
 
