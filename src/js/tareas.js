@@ -1,7 +1,66 @@
 (function() {
+
+    obtenerTareas();
+
     // Botón para mostrar el Modal de Agregar tarea
     const nuevaTareaBtn = document.querySelector('#agregar-tarea');
     nuevaTareaBtn.addEventListener('click', mostrarFormulario);
+
+    async function obtenerTareas() {
+        try {
+            const id = obtenerProyecto();
+            const url = `/api/tareas?id=${id}`;
+
+            const respuesta = await fetch(url);
+            const resultado = await respuesta.json();
+
+            // Destructuring
+            const { tareas } = resultado;
+            mostrarTareas(tareas);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    function mostrarTareas(tareas) {
+        if(tareas.length === 0) {
+            const contenedorTareas = document.querySelector('#listado-tareas');
+
+            const textoNoTareas = document.createElement('LI');
+            textoNoTareas.textContent = 'No Hay Tareas';
+            textoNoTareas.classList.add('no-tareas');
+
+            contenedorTareas.appendChild(textoNoTareas);
+            return;
+        }
+
+        const estados = {
+            0: 'Pendiente',
+            1: 'Completa'
+        }
+
+        tareas.forEach(tarea => {
+            const contenedorTarea = document.createElement('LI');
+            contenedorTarea.dataset.tareaId = tarea.id;
+            contenedorTarea.classList.add('tarea');
+
+            const nombreTarea = document.createElement('P');
+            nombreTarea.textContent = tarea.nombre;
+
+            const opcionesDiv = document.createElement('DIV');
+            opcionesDiv.classList.add('opciones');
+
+            // Botones
+            const btnEstadoTarea = document.createElement('BUTTON');
+            btnEstadoTarea.classList.add('estado-tarea');
+            btnEstadoTarea.classList.add(`${estados[tarea.estado].toLowerCase()}`);
+            btnEstadoTarea.textContent = estados[tarea.estado];
+            btnEstadoTarea.dataset.estadoTarea = tarea.estado;
+
+            console.log(btnEstadoTarea);
+        })
+    }
 
     function mostrarFormulario() {
         const modal = document.createElement('DIV');
