@@ -1,6 +1,7 @@
 (function() {
 
     obtenerTareas();
+    let tareas = [];
 
     // Botón para mostrar el Modal de Agregar tarea
     const nuevaTareaBtn = document.querySelector('#agregar-tarea');
@@ -15,15 +16,16 @@
             const resultado = await respuesta.json();
 
             // Destructuring
-            const { tareas } = resultado;
-            mostrarTareas(tareas);
+            tareas = resultado.tareas;
+            mostrarTareas();
 
         } catch (error) {
             console.log(error);
         }
     }
 
-    function mostrarTareas(tareas) {
+    function mostrarTareas() {
+        limpiarTareas();
         if(tareas.length === 0) {
             const contenedorTareas = document.querySelector('#listado-tareas');
 
@@ -173,7 +175,6 @@
             
             
             const resultado = await respuesta.json();
-            console.log(resultado);
 
             mostrarAlerta(resultado.mensaje, resultado.tipo, document.querySelector('.formulario legend'));
 
@@ -182,6 +183,17 @@
                 setTimeout(() => {
                     modal.remove();
                 }, 3000);
+
+                // Agregar el objeto de tarea al global de tareas
+                const tareaObj = {
+                    id: String(resultado.id),
+                    nombre: tarea,
+                    estado: "0",
+                    proyectoId: resultado.proyectoId
+                };
+
+                tareas = [...tareas, tareaObj]; // Agrega la tarea al arreglo global
+                mostrarTareas();
             }
 
         } catch (error) {
@@ -193,6 +205,15 @@
         const proyectoParams = new URLSearchParams(window.location.search);
         const proyecto = Object.fromEntries(proyectoParams.entries());
         return proyecto.id;
+    }
+
+    function limpiarTareas() {
+        const listadoTareas = document.querySelector("#listado-tareas");
+        
+        
+        while(listadoTareas.firstChild) {
+            listadoTareas.removeChild(listadoTareas.firstChild);
+        }
     }
 
 })(); //IIEF, Función que se manda llamar inmediatamente. Proteger las variables para que no se mezclen con los otros archivos
