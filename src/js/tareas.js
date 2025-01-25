@@ -67,6 +67,9 @@
             btnEliminarTarea.classList.add('eliminar-tarea');
             btnEliminarTarea.dataset.idTarea = tarea.id;
             btnEliminarTarea.textContent = 'Eliminar';
+            btnEliminarTarea.ondblclick = function() {
+                canfirmarEliminarTarea({...tarea});
+            }
 
             opcionesDiv.appendChild(btnEstadoTarea);
             opcionesDiv.appendChild(btnEliminarTarea);
@@ -243,6 +246,58 @@
             })
 
             mostrarTareas();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    function canfirmarEliminarTarea(tarea) {
+        Swal.fire({
+            title: "Eliminar Tarea?",
+            text: "No podrás revertir el cambio!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Si, eliminar tarea!",
+            cancelButtonText: "No, conservar tarea"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                eliminarTarea(tarea);
+            }
+        });
+    }
+
+    async function eliminarTarea(tarea) {
+
+        const { estado, id, nombre } = tarea;
+        
+        const datos = new FormData();
+        datos.append('id', id);
+        datos.append('nombre', nombre);
+        datos.append('estado', estado);
+        datos.append('proyectoId', obtenerProyecto());
+
+        try {
+            const url = 'http://localhost:3000/api/tarea/eliminar';
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos
+            });
+
+            const resultado = await respuesta.json();
+            
+            if(resultado.resultado) {
+                Swal.fire({
+                    title: "ELiminada!",
+                    text: resultado.mensaje,
+                    icon: "success"
+                });
+
+                tareas = tareas.filter( tareaMemoria => tareaMemoria.id !== tarea.id); // Toma todas las tareas menos la que se va a eliminar
+                mostrarTareas();
+            }
 
         } catch (error) {
             console.log(error);
